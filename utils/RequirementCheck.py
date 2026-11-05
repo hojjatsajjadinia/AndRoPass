@@ -72,7 +72,7 @@ class RequirementCheck:
     def download_latest_release(self, repo: str, download_dir: str, path_attr: str) -> bool:
         try:
             url = f"https://api.github.com/repos/{repo}/releases/latest"
-            response = requests.get(url)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             asset = response.json()["assets"][0]
             download_url = asset["browser_download_url"]
@@ -83,7 +83,7 @@ class RequirementCheck:
             if not os.path.exists(download_path) or os.path.getsize(download_path) != download_size:
                 cp.pr("info", f"[INFO] Downloading {repo.split('/')[1]} version: {response.json()['name']}")
                 with open(download_path, "wb") as file:
-                    response = requests.get(download_url, stream=True)
+                    response = requests.get(download_url, stream=True, timeout=30)
                     for chunk in response.iter_content(chunk_size=8192):
                         file.write(chunk)
                 cp.pr("info", f"[INFO] {repo.split('/')[1]} downloaded")
